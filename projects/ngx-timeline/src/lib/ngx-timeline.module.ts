@@ -11,7 +11,6 @@ import localeEs from '@angular/common/locales/es';
 import localeSl from '@angular/common/locales/sl';
 import localeTr from '@angular/common/locales/tr';
 import localePt from '@angular/common/locales/pt';
-import {BrowserModule} from "@angular/platform-browser";
 
 registerLocaleData(localeIt);
 registerLocaleData(localeFr);
@@ -23,7 +22,7 @@ registerLocaleData(localePt);
 
 @NgModule({
   declarations: [NgxTimelineComponent, NgxTimelineEventComponent, NgxDatePipe],
-  imports: [BrowserModule, CommonModule],
+  imports: [CommonModule],
   exports: [NgxTimelineComponent, NgxDatePipe],
 })
 export class NgxTimelineModule { }

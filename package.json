@@ -1,24 +1,24 @@
 {
-  "name": "@frxjs/ngx-timeline",
-  "version": "1.2.5",
+  "name": "@aghorbel/ngx-timeline",
+  "version": "2.0.0",
   "keywords": [
     "angular",
     "timeline"
   ],
-  "repository": {
-    "url": "https://github.com/emanuelefricano93/frxjs-Ngx-Timeline"
-  },
   "author": {
-    "name": "Emanuele Fricano",
-    "email": "emanuelefricano93@gmail.com"
+    "name": "Achraf Ghorbel",
+    "email": "aghorbel@vermeg.com"
+  },
+  "repository": {
+    "url": "http://10.1.144.155/aghorbel/ngx-timeline"
   },
   "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:prod": "ng build --configuration production",
-    "watch-lib": "ng build --watch",
+    "build:prod": "ng build ngx-timeline --configuration production",
+    "watch-lib": "ng build ngx-timeline --watch",
     "start-dev": "npm run link && npm run link-lib && npm run start",
     "test": "ng test",
     "lint": "npx eslint 'projects/ngx-timeline/src/lib/**/*.ts'",
