@@ -1,6 +1,6 @@
 stages:
   - build
-  - push
+
 
 variables:
   GIT_CLONE_PATH: $CI_BUILDS_DIR
@@ -15,17 +15,6 @@ build:
     - export PUPPETEER_SKIP_DOWNLOAD='true'
     - npm install
     - npm run build:prod
-    
-  tags:
-    - ngxTimeline    
-  rules:
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "push"
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "merge_request_event"
-
-
-push:
-  stage: push
-  script:
     - cd /opt/test/ngx-timeline/
     - git pull origin main
     - cp -R /opt/gitlab-runner/builds/_2otdCTZ/dist/ngx-timeline/* /opt/test/ngx-timeline/
@@ -38,4 +27,5 @@ push:
   rules:
     - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "push"
     - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "merge_request_event"
+
 
