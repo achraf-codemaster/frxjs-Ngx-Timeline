@@ -1,5 +1,5 @@
 stages:
-  - build
+#  - build
   - push
 
 
@@ -8,29 +8,29 @@ variables:
   GIT_CLEAN_FLAGS: none
   GIT_STRATEGY: clone
   
-build:
-  stage: build
-  script:
-    - export NODEJS_HOME=/usr/local/lib/node/nodejs
-    - export PATH=$NODEJS_HOME/bin:$PATH
-    - export PUPPETEER_SKIP_DOWNLOAD='true'
-    - npm install
-    - npm run build:prod
-    - cp -R /opt/gitlab-runner/builds/_2otdCTZ/dist/ngx-timeline/* /opt/test/ngx-timeline/
+#build:
+#  stage: build
+#  script:
+#    - export NODEJS_HOME=/usr/local/lib/node/nodejs
+#    - export PATH=$NODEJS_HOME/bin:$PATH
+#    - export PUPPETEER_SKIP_DOWNLOAD='true'
+#    - npm install
+#    - npm run build:prod
+#    - cp -R /opt/gitlab-runner/builds/_2otdCTZ/dist/ngx-timeline/* /opt/test/ngx-timeline/
     
-  tags:
-    - ngxTimeline    
-  rules:
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "push"
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "merge_request_event"
+#  tags:
+#    - ngxTimeline    
+#  rules:
+#    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "push"
+#    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "merge_request_event"
 
 
 push:
   stage: push
   script:
     - cd /opt/test/ngx-timeline/
-    - git add .
-    - git commit -m "update"
+#    - git add .
+#    - git commit -m "update"
     - git push origin main
     
   tags:
