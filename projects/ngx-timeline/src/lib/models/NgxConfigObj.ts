@@ -124,7 +124,9 @@ export enum NgxTimelineEventChangeSideInGroup {
   ALL = 'ALL',
   ON_DIFFERENT_HMS = 'ON_DIFFERENT_HMS',
   ON_DIFFERENT_DAY = 'ON_DIFFERENT_DAY',
-  ON_DIFFERENT_MONTH = 'ON_DIFFERENT_MONTH'
+  ON_DIFFERENT_MONTH = 'ON_DIFFERENT_MONTH',
+  ALL_LEFT = 'ALL_LEFT',
+  ALL_RIGHT = 'ALL_RIGHT'
 }
 
 export const fieldsToCheckEventChangeSideInGroup = {

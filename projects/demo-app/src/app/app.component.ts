@@ -72,7 +72,9 @@ export class AppComponent {
         {name: 'On different day', value: NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_DAY},
         {name: 'All', value: NgxTimelineEventChangeSideInGroup.ALL},
         {name: 'On different hours, minutes and seconds', value: NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_HMS},
-        {name: 'On different month', value: NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_MONTH}
+        {name: 'On different month', value: NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_MONTH},
+        {name: 'All left', value: NgxTimelineEventChangeSideInGroup.ALL_LEFT},
+        {name: 'All right', value: NgxTimelineEventChangeSideInGroup.ALL_RIGHT},
       ]
     },
     {
