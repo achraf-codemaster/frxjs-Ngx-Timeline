@@ -7,7 +7,7 @@ variables:
   GIT_CLONE_PATH: $CI_BUILDS_DIR
   GIT_CLEAN_FLAGS: none
   GIT_STRATEGY: clone
-  
+
 build:
   stage: build
   script:
@@ -17,24 +17,27 @@ build:
     - npm install
     - npm run build:prod
     - cp -R /opt/gitlab-runner/builds/_2otdCTZ/dist/ngx-timeline/* /opt/test/ngx-timeline/
-    
+
   tags:
-    - ngxTimeline    
+    - ngxTimeline
   rules:
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "push"
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "merge_request_event"
 
 
 push:
   stage: push
   script:
     - cd /opt/test/ngx-timeline/
+    - git config --global user.email $GITLAB_USER_EMAIL
+    - git config --global user.name $GITLAB_USER_NAME
     - git add .
-    - git commit -m "update"
+    - git commit -m $CI_COMMIT_MESSAGE
+    - git tag $CI_COMMIT_TAG
     - git push origin main
-    
+
   tags:
-    - ngxTimeline    
+    - ngxTimeline
   rules:
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "push"
-    - if: $CI_COMMIT_REF_NAME == "14.x" && $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "merge_request_event"
