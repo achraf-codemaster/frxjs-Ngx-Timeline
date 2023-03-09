@@ -39,7 +39,7 @@ push:
     - git config --global user.email $GITLAB_USER_EMAIL
     - git config --global user.name $GITLAB_USER_NAME
     - git add .
-    - git commit -m $CI_COMMIT_MESSAGE
+    - git commit -m "$CI_COMMIT_MESSAGE"
     - git tag $CI_COMMIT_TAG
     - git push origin main
 
