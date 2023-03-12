@@ -1,10 +1,11 @@
 /**
  * Event to be provided from outside the timeline
  */
-export interface NgxTimelineEvent {
+export interface NgxTimelineEvent<T = any> {
   timestamp?: Date;
   title?: string;
   description?: string;
+  data?: T;
   id?: any;
 }
 
