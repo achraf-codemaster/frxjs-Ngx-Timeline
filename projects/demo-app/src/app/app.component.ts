@@ -135,20 +135,25 @@ export class AppComponent {
 
   private initEvents(): void {
     const today = new Date();
+    const nextHour = new Date();
+    nextHour.setHours(nextHour.getHours() + 1);
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
+    const tomorrowNextHour = new Date();
+    tomorrowNextHour.setDate(today.getDate() + 1);
+    tomorrowNextHour.setHours(tomorrowNextHour.getHours() + 1);
     const nextMonth = new Date();
     nextMonth.setMonth(today.getMonth() + 1);
     const nextYear = new Date();
     nextYear.setFullYear(today.getFullYear() + 1);
 
     this.events = [
-      { id: 5, description: 'This is the description of the event 5', timestamp: nextYear, title: 'title 5' },
       { id: 0, description: 'This is the description of the event 0', timestamp: today, title: 'title 0' },
-      { id: 1, description: 'This is the description of the event 1', timestamp: tomorrow, title: 'title 1' },
-      { id: 2, description: 'This is the description of the event 2', timestamp: today, title: 'title 2' },
-      { id: 3, description: 'This is the description of the event 3', timestamp: tomorrow, title: 'title 3' },
+      { id: 1, description: 'This is the description of the event 1', timestamp: nextHour, title: 'title 1' },
+      { id: 2, description: 'This is the description of the event 2', timestamp: tomorrow, title: 'title 2' },
+      { id: 3, description: 'This is the description of the event 3', timestamp: tomorrowNextHour, title: 'title 3' },
       { id: 4, description: 'This is the description of the event 4', timestamp: nextMonth, title: 'title 4' },
+      { id: 5, description: 'This is the description of the event 5', timestamp: nextYear, title: 'title 5' },
     ];
   }
 

@@ -175,7 +175,9 @@ export class NgxTimelineComponent implements OnInit, OnChanges {
   }
 
   protected setPeriods(): void {
-    this.periods = Object.keys(this.groups).map((periodKey) => {
+    this.periods = Object.keys(this.groups)
+      .sort((a, b) => this.reverseOrder ? b.localeCompare(a): a.localeCompare(b))
+      .map((periodKey) => {
       const split = periodKey.split(this.separator);
       return this.getPeriodInfo(split, periodKey);
     });
