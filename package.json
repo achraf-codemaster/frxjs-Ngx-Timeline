@@ -10,7 +10,7 @@
     "email": "aghorbel@vermeg.com"
   },
   "repository": {
-    "url": "http://10.1.144.155/aghorbel/ngx-timeline"
+    "url": "https://git.vermeg.com/aghorbel/ngx-timeline"
   },
   "license": "MIT",
   "scripts": {
