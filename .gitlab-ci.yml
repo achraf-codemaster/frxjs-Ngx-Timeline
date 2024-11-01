@@ -1,43 +1,113 @@
+before_script:
+  - echo "Project name > $CI_PROJECT_NAME || The name of the jobs stage > $CI_JOB_STAGE || CI job started at > $(date) ||  The instance-level ID of the current pipeline > $CI_PIPELINE_ID || How the pipeline was triggered > $CI_PIPELINE_SOURCE || The URL for the pipeline details > $CI_PIPELINE_URL || Project dir > $CI_PROJECT_DIR || The unique ID of the runner being used > $CI_RUNNER_ID || The runner tags > $CI_RUNNER_TAGS || branch name > $CI_COMMIT_REF_NAME || ci job id > $CI_JOB_ID"
+after_script:
+  - echo "The status of the job > $CI_JOB_STATUS || CI job ended at > $(date)"
+image: node:18
+
+default:
+  tags:
+    - DigitalAppRunner
+
+
 stages:
-  - build
-  - push
+  - install
+  - release
+  - deploy-lib
 
+cache:
+  paths:
+    - node_modules/
 
-variables:
-  GIT_CLONE_PATH: $CI_BUILDS_DIR
-  GIT_CLEAN_FLAGS: none
-  GIT_STRATEGY: clone
-
-build:
-  stage: build
+install_dependencies:
+  stage: install
   script:
-    - export NODEJS_HOME=/usr/local/lib/node/nodejs
-    - export PATH=$NODEJS_HOME/bin:$PATH
-    - export PUPPETEER_SKIP_DOWNLOAD='true'
-    - npm install
-    - npm run build:prod
-    - cp -R /opt/gitlab-runner/builds/_2otdCTZ/dist/ngx-timeline/* /opt/test/ngx-timeline/
-
-  tags:
-    - DigitalAppRunner
-  rules:
-    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "push"
-    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "merge_request_event"
+    - echo $NEXUS_GROUP_DEV_AUTH > ~/.npmrc
+    - echo @palmyra:registry=$NEXUS_GROUP_DEV > ~/.npmrc
+    - npm config set registry https://registry.npmjs.org
+    - export NODE_OPTIONS=--max-old-space-size=2048
+    - npm install --force
+  artifacts:
+    paths:
+      - node_modules/
 
 
-push:
-  stage: push
+prepeare_dev_release:
+  stage: release
+  only:
+    - dev
+    - /^dev-sprint.*$/
+    - /^patch-.*$/
+  before_script:
+    - REPO=$(echo $CI_REPOSITORY_URL| cut -d '@' -f 2)
+    - URL="https://palmyra-ci:${CI_PUSH_TOKEN}@$REPO"
+    - git remote set-url origin $URL
+    - git config --global user.email 'supportpalmyra@vermeg.com'
+    - git config --global user.name 'palmyra-ci'
   script:
-    - cd /opt/test/ngx-timeline/
-    - git config --global user.email $GITLAB_USER_EMAIL
-    - git config --global user.name $GITLAB_USER_NAME
-    - git add .
-    - git commit -m "$CI_COMMIT_MESSAGE"
-    - git tag -a "$CI_COMMIT_TAG" -m "Version $CI_COMMIT_TAG"
-    - git push origin "$CI_COMMIT_TAG"
+    - cd projects/ngx-timeline
+    - npm version prerelease -m "${COMMIT_MSG_VERSION}"
+    - git add --all
+    - "git diff-index --quiet HEAD || git commit -m 'ci: Changelog generation [skip-ci]'"
+    - git push origin HEAD:$CI_COMMIT_REF_NAME
+  when: on_success
 
-  tags:
-    - DigitalAppRunner
-  rules:
-    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "push"
-    - if: $CI_COMMIT_TAG != null && $CI_PIPELINE_SOURCE == "merge_request_event"
+prepeare_prod_release:
+  stage: release
+  only:
+    - main
+  before_script:
+    - REPO=$(echo $CI_REPOSITORY_URL| cut -d '@' -f 2)
+    - URL="https://palmyra-ci:${CI_PUSH_TOKEN}@$REPO"
+    - git remote set-url origin $URL
+    - git config --global user.email 'supportpalmyra@vermeg.com'
+    - git config --global user.name 'palmyra-ci'
+  script:
+    - cd projects/ngx-timeline
+    - 'VERSION=$(cat package.json | grep version | head -1 | awk -F: ''{ print $2 }''| sed ''s/[",]//g'' | tr -d ''[[:space:]]'')'
+    - RELEASE_VERSION=$(echo $VERSION| cut -d '-' -f 1)
+    - "npm version $RELEASE_VERSION -m 'ci: Palmyra Release $RELEASE_VERSION [skip-ci] ' --allow-same-version "
+  after_script:
+    - git add --all
+    - "git diff-index --quiet HEAD || git commit -m 'ci: Changelog generation [skip-ci]'"
+    - git push origin --tags HEAD:$CI_COMMIT_REF_NAME
+  when: on_success
+
+
+deploy_dev:
+  stage: deploy-lib
+  only:
+    - dev
+    - /^dev-sprint.*$/
+    - /^patch-.*$/
+  before_script:
+    - REPO=$(echo $CI_REPOSITORY_URL| cut -d '@' -f 2)
+    - URL="https://palmyra-ci:${CI_PUSH_TOKEN}@$REPO"
+    - git remote set-url origin $URL
+    - git config --global user.email 'supportpalmyra@vermeg.com'
+    - git config --global user.name 'palmyra-ci'
+    - git pull origin $CI_COMMIT_REF_NAME
+  script:
+    - echo $NEXUS_HOSTED_QA_AUTH > ~/.npmrc
+    - npm run build-package
+    - cd dist/ngx-timeline
+    - npm publish --tag next --registry $NEXUS_HOSTED_QA
+  when: on_success
+
+deploy_prod:
+  stage: deploy-lib
+  only:
+    - main
+  before_script:
+    - REPO=$(echo $CI_REPOSITORY_URL| cut -d '@' -f 2)
+    - URL="https://palmyra-ci:${CI_PUSH_TOKEN}@$REPO"
+    - git remote set-url origin $URL
+    - git config --global user.email 'supportpalmyra@vermeg.com'
+    - git config --global user.name 'palmyra-ci'
+    - git pull origin main
+  script:
+    - echo $NEXUS_HOSTED_PROD_AUTH > ~/.npmrc
+    - npm run build-package
+    - cd dist/ngx-timeline
+    - npm publish --registry $NEXUS_HOSTED_PROD
+  when: on_success
+
