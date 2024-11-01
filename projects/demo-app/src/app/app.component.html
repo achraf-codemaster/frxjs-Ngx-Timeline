@@ -4,7 +4,7 @@
     width="40"
     alt="Angular Logo"
     src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg=="
-  />
+  >
   <span>Welcome</span>
     <div class="spacer"></div>
     <a aria-label="Angular on twitter" target="_blank" rel="noopener" href="https://twitter.com/angular" title="Twitter">
@@ -23,47 +23,52 @@
     <!-- ALL CONFIGURATIONS -->
     <form [formGroup]="form">
       <div class="form-container">
-        <div class="form-select" *ngFor="let configuration of configurations">
-          <label>{{configuration.label}}</label>
-          <select formControlName="{{configuration.formControlName}}">
-            <option *ngFor="let option of configuration.options" [ngValue]="option.value">{{ option.name }}</option>
-          </select>
-        </div>
+        @for (configuration of configurations; track configuration) {
+          <div class="form-select">
+            <label>{{ configuration.label }}</label>
+            <select formControlName="{{configuration.formControlName}}">
+              @for (option of configuration.options; track option) {
+                <option [ngValue]="option.value">{{ option.name }}</option>
+              }
+            </select>
+          </div>
+        }
       </div>
     </form>
 
-    <!-- ngx-timeline -->
-    <ngx-timeline
-      [events]="events"
-      [ngClass]="form.get('customClass').value ? 'inter' : ''"
-      [langCode]="form.get('langCode').value"
-      [enableAnimation]="form.get('enableAnimation').value"
-      [reverseOrder]="form.get('reverseOrder').value"
-      [groupEvent]="form.get('groupEvent').value"
-      [changeSideInGroup]="form.get('changeSideInGroup').value"
-      [eventCustomTemplate]="form.get('eventCustomTemplate').value ? eventCustomTemplate : null"
-      [innerEventCustomTemplate]="form.get('innerEventCustomTemplate').value ? innerEventCustomTemplate : null"
-      [centerIconCustomTemplate]="form.get('centerIconCustomTemplate').value ? centerIconCustomTemplate : null"
-      [dateInstantCustomTemplate]="form.get('dateInstantCustomTemplate').value ? dateInstantCustomTemplate : null"
-      [periodCustomTemplate]="form.get('periodCustomTemplate').value ? periodCustomTemplate : null"
-      (clickEmitter)="form.get('clickEmitter').value ? handleClick($event) : null"
-    ></ngx-timeline>
+    <div class="ngx-timeline-container" [ngClass]="{'custom-theme': form.get('customTheme').value}">
+      <!-- ngx-timeline -->
+      <ngx-timeline
+        [events]="events"
+        [ngClass]="form.get('customClass').value ? 'inter' : ''"
+        [langCode]="form.get('langCode').value"
+        [enableAnimation]="form.get('enableAnimation').value"
+        [reverseOrder]="form.get('reverseOrder').value"
+        [groupEvent]="form.get('groupEvent').value"
+        [changeSide]="form.get('changeSide').value"
+        [orientation]="form.get('orientation').value"
+        [eventCustomTemplate]="form.get('eventCustomTemplate').value ? eventCustomTemplate : null"
+        [innerEventCustomTemplate]="form.get('innerEventCustomTemplate').value ? innerEventCustomTemplate : null"
+        [eventDescriptionCustomTemplate]="form.get('eventDescriptionCustomTemplate').value ? eventDescriptionCustomTemplate : null"
+        [centerIconCustomTemplate]="form.get('centerIconCustomTemplate').value ? centerIconCustomTemplate : null"
+        [dateInstantCustomTemplate]="form.get('dateInstantCustomTemplate').value ? dateInstantCustomTemplate : null"
+        [periodCustomTemplate]="form.get('periodCustomTemplate').value ? periodCustomTemplate : null"
+        (clickEmitter)="form.get('clickEmitter').value ? handleClick($event) : null"
+      ></ngx-timeline>
+    </div>
+
   </div>
 
   <!-- CUSTOM TEMPLATES -->
   <ng-template #periodCustomTemplate let-period=period let-index=index>
-    <div [ngClass]="{'transparent first-line': !index}" class="line"></div>
-    <div class="period-container">
-      <p>
+      <div class="period-inner-container">
         {{index}} - {{period?.firstDate | ngxdate }}
-      </p>
-    </div>
-    <div class="line"></div>
+      </div>
   </ng-template>
 
   <ng-template #centerIconCustomTemplate let-event=event let-index=index>
     <div class="icon-container">
-      <img src="assets/inter.png"/>
+      <img src="assets/inter.png">
       <!-- {{event | json}} {{index | json}} -->
     </div>
   </ng-template>
@@ -72,6 +77,10 @@
     <div class="event" (click)="handleClick(event)">
       {{event | json}}
     </div>
+  </ng-template>
+
+  <ng-template #eventDescriptionCustomTemplate let-event=event>
+    <p class="event-info-description">{{event?.eventInfo?.description}}</p>
   </ng-template>
 
   <ng-template #eventCustomTemplate let-event=event let-colSidePosition=colSidePosition>

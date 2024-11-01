@@ -3,6 +3,15 @@
   "ignorePatterns": [
     "!**/*"
   ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": [
+          "projects/ngx-timeline/tsconfig.(lib|spec).json"
+        ]
+      }
+    }
+  },
   "overrides": [
     {
       "files": [
@@ -10,13 +19,11 @@
       ],
       "parserOptions": {
         "project": [
-          "projects/ngx-timeline/tsconfig.lib.json",
-          "projects/ngx-timeline/tsconfig.spec.json"
-        ],
-        "createDefaultProgram": true
+          "projects/ngx-timeline/tsconfig.(lib|spec).json"
+        ]
       },
       "rules": {
-        "quotes": ["error", "single"],
+        "@angular-eslint/prefer-standalone": "warn",
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -34,12 +41,6 @@
           }
         ]
       }
-    },
-    {
-      "files": [
-        "*.html"
-      ],
-      "rules": {}
     }
   ]
 }

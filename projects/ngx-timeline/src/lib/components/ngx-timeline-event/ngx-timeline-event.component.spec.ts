@@ -1,9 +1,9 @@
+import {registerLocaleData} from '@angular/common';
+import localeIt from '@angular/common/locales/it';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NgxTimelineEventComponent} from './ngx-timeline-event.component';
 import {NgxTimelineItemPosition} from '../../models';
-import localeIt from '@angular/common/locales/it';
-import {registerLocaleData} from '@angular/common';
 
 registerLocaleData(localeIt);
 
@@ -33,9 +33,8 @@ describe('NgxTimelineEventComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [NgxTimelineEventComponent],
-    })
-        .compileComponents();
+      imports: [NgxTimelineEventComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -78,11 +77,6 @@ describe('NgxTimelineEventComponent', () => {
       component.langCode = 'it';
       const res = component.getDateObj();
       expect(res).toEqual({day: '19', month: 'ago', year: 2021});
-    });
-    it('should getDateObj with unsupported langCode', () => {
-      component.langCode = 'xx';
-      const res = component.getDateObj();
-      expect(res).toEqual({day: '19', month: 'Aug', year: 2021});
     });
   });
 });

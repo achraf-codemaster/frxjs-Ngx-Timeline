@@ -7,6 +7,7 @@ export interface NgxTimelineEvent<T = any> {
   description?: string;
   data?: T;
   id?: any;
+  itemPosition?: NgxTimelineItemPosition;
 }
 
 export interface NgxTimelinePeriodInfo {

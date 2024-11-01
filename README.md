@@ -1,16 +1,16 @@
 # NgxTimeline ![check-code-coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
 The main goal of this angular library is to give you the possibility to integrate a timeline in your app.
-<br/>
-Version 1.2.0 is compatible with angular 13.
-<br/>
+<br>
+Version 18.0.7 is compatible with angular 18.
+<br>
 Go [here](https://emanuelefricano93.github.io/frxjs-Ngx-Timeline/) and discover all possible configurations for the timeline 
 
 ![image](https://user-images.githubusercontent.com/26500344/130092921-8338496a-31df-46fa-b75f-40989eb53d33.png)
 <p align = "center">
 Fig.1 - Preview of <a href="https://emanuelefricano93.github.io/frxjs-Ngx-Timeline/">Timeline example configuration page</a>
 </p>
-<br/><br/>
+<br><br>
 
 
 ## Installation
@@ -18,7 +18,7 @@ Running the following command to install the library
 ```
 npm install @frxjs/ngx-timeline
 ```
-<br/><br/>
+<br><br>
 
 
 
@@ -26,36 +26,38 @@ npm install @frxjs/ngx-timeline
 
 After installing the library and including NgxTimelineModule in your imports module you could add one of following examples to your template in order to display your timeline
 
-```
+```html
 <ngx-timeline [events]="events"></ngx-timeline>
-<ngx-timeline [events]="events" [langCode]="it"></ngx-timeline>
-<ngx-timeline [events]="events" [langCode]="it" [enableAnimation]="false"></ngx-timeline>
+<ngx-timeline [events]="events" [langCode]="'it'"></ngx-timeline>
+<ngx-timeline [events]="events" [langCode]="'it'" [enableAnimation]="false"></ngx-timeline>
 ```
-<br/><br/>
+<br><br>
 
 ## Configuration
 
 ### Input
-Input name                    | Explanation                                                 | Mandatory | Type/Supported Values                     | Default value
----                           | ---                                                         | ---       | ---                                       | ---           
-events                        | list of events to be displayed                              | yes       | NgxTimelineEvent                          | no default    
-langCode                      | language code use to format dates                           | no        | <ul><li>'en'</li><li>'it'</li><li>'fr'</li><li>'de'</li><li>'es'</li><li>'sl'</li><li>'tr'</li><li>'pt'</li></ul>             | 'en'          
-enableAnimation               | Boolean used to enable or disable the animations            | no        | boolean                                   | true   
-reverseOrder                  | Boolean used to reverse sort order (default older first)    | no        | boolean                                   | false   
-groupEvent                    | Logic to be applied in order to group events                | no        | enum NgxTimelineEventGroup                | NgxTimelineEventGroup.MONTH_YEAR
-changeSideInGroup             | Logic to be applied in order to put evetns on LEFT or RIGHT | no        | enum NgxTimelineEventChangeSideInGroup    | NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_DAY    
-periodCustomTemplate          | Custom Template displayed before a group of events          | no        | TemplateRef<any>                          | no default 
-eventCustomTemplate           | Custom Template displayed to show a single event            | no        | TemplateRef<any>                          | no default 
-centerIconCustomTemplate      | Custom Template displayed to show an separator icon         | no        | TemplateRef<any>                          | no default 
-dateInstantCustomTemplate     | Custom Template displayed to show the side date             | no        | TemplateRef<any>                          | no default 
-innerEventCustomTemplate      | Custom Template displayed to show the inner event           | no        | TemplateRef<any>                          | no default 
-<br/>
+Input name                    | Explanation                                                 | Mandatory | Type/Supported Values                                                                                                                       | Default value
+---                           | ---                                                         | ---       |---------------------------------------------------------------------------------------------------------------------------------------------| ---           
+events                        | list of events to be displayed                              | yes       | NgxTimelineEvent                                                                                                                            | no default    
+langCode                      | language code use to format dates                           | no        | <ul><li>'en'</li><li>'it'</li><li>'fr'</li><li>'de'</li><li>'es'</li><li>'sl'</li><li>'tr'</li><li>'pl'</li><li>'pt'</li><li>'ru'</li></ul> | 'en'          
+enableAnimation               | Boolean used to enable or disable the animations            | no        | boolean                                                                                                                                     | true   
+reverseOrder                  | Boolean used to reverse sort order (default older first)    | no        | boolean                                                                                                                                     | false   
+groupEvent                    | Logic to be applied in order to group events                | no        | enum NgxTimelineEventGroup                                                                                                                  | NgxTimelineEventGroup.MONTH_YEAR
+orientation                   | Orientation of the timeline                                 | no        | enum NgxTimelineOrientation                                                                                                                  | NgxTimelineOrientation.VERTICAL
+changeSide                    | Logic to be applied in order to put events on LEFT or RIGHT | no        | enum NgxTimelineEventChangeSide                                                                                                      | NgxTimelineEventChangeSide.ON_DIFFERENT_DAY_IN_GROUP    
+periodCustomTemplate          | Custom Template displayed before a group of events          | no        | TemplateRef<any>                                                                                                                            | no default 
+eventCustomTemplate           | Custom Template displayed to show a single event            | no        | TemplateRef<any>                                                                                                                            | no default 
+centerIconCustomTemplate      | Custom Template displayed to show an separator icon         | no        | TemplateRef<any>                                                                                                                            | no default 
+dateInstantCustomTemplate     | Custom Template displayed to show the side date             | no        | TemplateRef<any>                                                                                                                            | no default 
+innerEventCustomTemplate      | Custom Template displayed to show the inner event           | no        | TemplateRef<any>                                                                                                                            | no default 
+eventDescriptionCustomTemplate| Custom Template displayed to show the description           | no        | TemplateRef<any>                                                                                                                            | no default 
+<br>
 
 ### Output
 Output name                   | Explanation                                                 | Mandatory | Type/Supported Values                     | Default value
 ---                           | ---                                                         | ---       | ---                                       | ---           
 clickEmitter                  |  Output click event emitter                                 | no        | BehaviorSubject<NgxTimelineItem>          | no default 
-<br/>
+<br>
 
 ### Types and Enums
 ```typescript
@@ -64,6 +66,7 @@ interface NgxTimelineEvent {
   title?: string;
   description?: string;
   id?: any;
+  itemPosition?: NgxTimelineItemPosition;
 }
 ```
 ```typescript
@@ -74,17 +77,35 @@ enum NgxTimelineEventGroup {
 }
 ```
 ```typescript
-enum NgxTimelineEventChangeSideInGroup {
+export enum NgxTimelineOrientation {
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
+}
+```
+```typescript
+enum NgxTimelineEventChangeSide {
   ALL = 'ALL',
-  ON_DIFFERENT_HMS = 'ON_DIFFERENT_HMS',
-  ON_DIFFERENT_DAY = 'ON_DIFFERENT_DAY',
-  ON_DIFFERENT_MONTH = 'ON_DIFFERENT_MONTH',
+  ALL_IN_GROUP = 'ALL_IN_GROUP',
+  ON_DIFFERENT_DAY_IN_GROUP = 'ON_DIFFERENT_DAY_IN_GROUP',
+  ON_DIFFERENT_HMS_IN_GROUP = 'ON_DIFFERENT_HMS_IN_GROUP',
+  ON_DIFFERENT_MONTH_IN_GROUP = 'ON_DIFFERENT_MONTH_IN_GROUP',
   ALL_LEFT = 'ALL_LEFT',
   ALL_RIGHT = 'ALL_RIGHT'
 }
 ```
-<br/>
-  
+<br>
+
+### Custom Theme supported
+
+This is an example of custom-theme that can be applied for istance via an ng-class directive to the container of the library. In this way you are redefine some variables that are defined and used inside the library and it is easier to override some properties 
+```scss
+.custom-theme {
+    --ngx-timeline-icon: black;
+    --ngx-timeline-period-inner-container: black;
+    --ngx-timeline-line-background: black;
+}
+```
+
 ### Examples with contexts of custom templates
 ```html
   <ng-template #periodCustomTemplate let-period=period let-index=index let-event=event>
@@ -100,7 +121,7 @@ enum NgxTimelineEventChangeSideInGroup {
 ```html
   <ng-template #centerIconCustomTemplate let-index=index let-event=event>
     <div class="icon-container">
-      <img src="assets/image.png"/>
+      <img src="assets/image.png">
     </div>
   </ng-template>
 ```
@@ -109,6 +130,11 @@ enum NgxTimelineEventChangeSideInGroup {
     <div class="event" (click)="handleClick(event)">
       {{event | json}}
     </div>
+  </ng-template>
+```
+```html
+  <ng-template #eventDescriptionCustomTemplate let-event=event>
+    <p class="event-info-description">{{event?.eventInfo?.description}}</p>
   </ng-template>
 ```
 ```html
@@ -125,13 +151,13 @@ enum NgxTimelineEventChangeSideInGroup {
     </span>
   </ng-template>
 ```    
-<br/><br/>
+<br><br>
   
 ## How to contribute
 First of all, in order to track everything, open an issue describing the problem or a missing functionality you would like to add to the lib.
 
 To start the contribution:
-- `npm run watch-lib` (you are builduing the lib with --watch options)
+- `npm run watch-lib` (you are building the lib with --watch options)
 - `npm run start-dev` (you are linking the lib and starting the demo app )
 
 Every time you will change the code in your lib, any update will trigger the re-load of the app.
@@ -139,3 +165,12 @@ When your code will be ready, create a Pull Request and put the link in a commen
 Now is time to enjoy and start to code.
 
 Thanks in advance for your contribution
+
+## How to deploy new version (for maintainers only)
+After testing the fix or the new feature with 100% test coverage:
+- npm run lint:fix
+- npm run prepare-github-pages
+- npm run new-version patch
+- git push --tags
+- git push
+- npm run publish

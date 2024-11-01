@@ -3,8 +3,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/app",
-    "types": [],
-      "paths": {
+    "types": [
+      "@angular/localize"
+    ],
+    "paths": {
       "ngx-timeline": [
         "dist/ngx-timeline/ngx-timeline",
         "dist/ngx-timeline"
@@ -17,8 +19,7 @@
     "strictTemplates": false
   },
   "files": [
-    "src/main.ts",
-    "src/polyfills.ts"
+    "src/main.ts"
   ],
   "include": [
     "src/**/*.d.ts"

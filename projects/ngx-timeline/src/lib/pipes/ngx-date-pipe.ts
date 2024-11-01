@@ -1,13 +1,18 @@
 import {DatePipe} from '@angular/common';
 import {Pipe, PipeTransform} from '@angular/core';
-import {NgxConfigDate, supportedLanguageCodes, fieldConfigDate, dateConfigMap} from '../models';
 
-@Pipe({name: 'ngxdate', pure: false})
+import {dateConfigMap, defaultSupportedLanguageCode, fieldConfigDate, NgxConfigDate, SupportedLanguageCode} from '../models';
+
+@Pipe({
+  name: 'ngxdate',
+  standalone: true,
+  pure: false,
+})
 export class NgxDatePipe implements PipeTransform {
   constructor() {
   }
 
-  transform(date: Date | string, dateFormat?: string, langCode?: string): string {
+  transform(date: Date | string, dateFormat?: string, langCode?: SupportedLanguageCode): string {
     let transformedDate = null;
     if (date) {
       const objDate = this.getDateConfig(langCode);
@@ -20,9 +25,8 @@ export class NgxDatePipe implements PipeTransform {
     return configDate[fieldConfigDate[dateFormat]];
   }
 
-  private getDateConfig(langCode: string): NgxConfigDate {
-    const code = langCode || supportedLanguageCodes[0];
-    const configDate = dateConfigMap[code] || dateConfigMap[supportedLanguageCodes[0]];
-    return configDate;
+  private getDateConfig(langCode?: SupportedLanguageCode): NgxConfigDate {
+    const code: SupportedLanguageCode = langCode ?? defaultSupportedLanguageCode;
+    return dateConfigMap[code];
   }
 }

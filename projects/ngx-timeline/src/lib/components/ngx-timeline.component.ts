@@ -1,31 +1,45 @@
-import {Component, OnInit, Input, TemplateRef, OnChanges, SimpleChanges, Output} from '@angular/core';
+import {NgClass, NgTemplateOutlet} from '@angular/common';
+import {Component, DoCheck, inject, Input, IterableDiffer, IterableDiffers, OnChanges, OnInit, Output, TemplateRef} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
+
+import {NgxTimelineEventComponent} from './ngx-timeline-event/ngx-timeline-event.component';
 import {
   NgxTimelineEvent,
   NgxTimelineItem,
   NgxTimelineItemPosition,
+  NgxTimelineOrientation,
   NgxTimelinePeriodInfo,
   NgxDateFormat,
   NgxTimelineEventGroup,
-  NgxTimelineEventChangeSideInGroup,
+  NgxTimelineEventChangeSide,
   periodKeyDateFormat,
-  fieldsToCheckEventChangeSideInGroup,
-  fieldsToAddEventGroup} from '../models';
-import {BehaviorSubject} from 'rxjs';
+  fieldsToCheckEventChangeSideInGroup as fieldsToCheckEventChangeSide,
+  fieldsToAddEventGroup, SupportedLanguageCode, defaultSupportedLanguageCode,
+} from '../models';
+import {NgxDatePipe} from '../pipes';
+
 
 @Component({
   selector: 'ngx-timeline',
+  standalone: true,
   templateUrl: './ngx-timeline.component.html',
-  styleUrls: ['./ngx-timeline.scss'],
+  styleUrl: './ngx-timeline.component.scss',
+  imports: [
+    NgClass,
+    NgTemplateOutlet,
+    NgxDatePipe,
+    NgxTimelineEventComponent,
+  ],
 })
-export class NgxTimelineComponent implements OnInit, OnChanges {
+export class NgxTimelineComponent implements OnInit, OnChanges, DoCheck {
   /**
    * List of events to be displayed
    */
-  @Input() events: NgxTimelineEvent[];
+  @Input() events!: NgxTimelineEvent[];
   /**
    * Language code used to show the date formatted
    */
-  @Input() langCode?: string;
+  @Input() langCode: SupportedLanguageCode = defaultSupportedLanguageCode;
   /**
    * Boolean used to enable or disable the animations
    */
@@ -35,33 +49,41 @@ export class NgxTimelineComponent implements OnInit, OnChanges {
    */
   @Input() reverseOrder = false;
   /**
+   * Orientation of the timeline
+   */
+  @Input() orientation: NgxTimelineOrientation = NgxTimelineOrientation.VERTICAL;
+  /**
    * Logic to be applied in order to group events
    */
-  @Input() groupEvent?: NgxTimelineEventGroup = NgxTimelineEventGroup.MONTH_YEAR;
+  @Input() groupEvent: NgxTimelineEventGroup = NgxTimelineEventGroup.MONTH_YEAR;
   /**
-   * Logic to be applied in order to put evetns on LEFT or RIGHT
+   * Logic to be applied in order to put events on LEFT or RIGHT
    */
-  @Input() changeSideInGroup?: NgxTimelineEventChangeSideInGroup = NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_DAY;
+  @Input() changeSide: NgxTimelineEventChangeSide = NgxTimelineEventChangeSide.ON_DIFFERENT_DAY_IN_GROUP;
   /**
    * Custom Template displayed before a group of events
    */
-  @Input() periodCustomTemplate: TemplateRef<any>;
+  @Input() periodCustomTemplate?: TemplateRef<any>;
   /**
    * Custom Template displayed to show a single event
    */
-  @Input() eventCustomTemplate: TemplateRef<any>;
+  @Input() eventCustomTemplate?: TemplateRef<any>;
   /**
    * Custom Template displayed to show an separator icon
    */
-  @Input() centerIconCustomTemplate: TemplateRef<any>;
+  @Input() centerIconCustomTemplate?: TemplateRef<any>;
   /**
    * Custom Template displayed to show the side date
    */
-  @Input() dateInstantCustomTemplate: TemplateRef<any>;
+  @Input() dateInstantCustomTemplate?: TemplateRef<any>;
   /**
    * Custom Template displayed to show the inner event
    */
-  @Input() innerEventCustomTemplate: TemplateRef<any>;
+  @Input() innerEventCustomTemplate?: TemplateRef<any>;
+  /**
+   * Inner custom template used to display the event description
+   */
+  @Input() eventDescriptionCustomTemplate?: TemplateRef<any>;
   /**
    * Output click event emitter
    */
@@ -72,19 +94,26 @@ export class NgxTimelineComponent implements OnInit, OnChanges {
   periods: NgxTimelineItem[] = [];
   items: NgxTimelineItem[] = [];
   ngxTimelineItemPosition = NgxTimelineItemPosition;
+  ngxTimelineOrientation = NgxTimelineOrientation;
   ngxDateFormat = NgxDateFormat;
 
+  private differs: IterableDiffers = inject(IterableDiffers);
+  private iterableDiffer: IterableDiffer<any> = this.differs.find([]).create();
   private readonly separator = '/';
-
-  constructor() {}
-
 
   ngOnInit(): void {
     this.groupEvents(this.events);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges() {
     this.groupEvents(this.events);
+  }
+
+  ngDoCheck() {
+    const changes = this.iterableDiffer.diff(this.events);
+    if (changes) {
+      this.groupEvents(this.events);
+    }
   }
 
   getPeriodKeyDateFormat(): string {
@@ -101,8 +130,7 @@ export class NgxTimelineComponent implements OnInit, OnChanges {
     if (events) {
       this.clear();
       this.sortEvents(events);
-      this.setGroups(events);
-      this.setPeriods();
+      this.setGroupsAndPeriods(events);
       this.setItems();
     }
   }
@@ -114,32 +142,38 @@ export class NgxTimelineComponent implements OnInit, OnChanges {
       return this.reverseOrder ? bTime - aTime : aTime - bTime;});
   }
 
-  protected setGroups(events: NgxTimelineEvent[]): void {
+  protected setGroupsAndPeriods(events: NgxTimelineEvent[]): void {
+    this.periods = [];
     events.forEach((event) => {
       // conversion from string to actual Date
       event.timestamp = new Date(event.timestamp);
       const periodKey = this.getPeriodKeyFromEvent(event);
       if (!this.groups[periodKey]) {
         this.groups[periodKey] = [];
+        this.periods.push(this.getPeriodInfoFromPeriodKey(periodKey, event))
       }
       this.groups[periodKey].push(event);
     });
   }
 
   protected setItems(): void {
+    let isLastItemOnLeft = false;
     this.periods.forEach((p) => {
       // insert first the period
       this.items.push(p);
       // in each period putting items on left
-      const onLeft = true;
+      let onLeft = true;
+      if (this.changeSide === NgxTimelineEventChangeSide.ALL) {
+        onLeft = !isLastItemOnLeft;
+      }
       const periodInfo = p.periodInfo;
       // insert then all the events in this period
-      this.addPeriodEvents(periodInfo, onLeft);
+      isLastItemOnLeft = this.addPeriodEvents(periodInfo, onLeft);
       // onLeft = this.addEventItemsAndGetIfOnLeft(periodInfo, onLeft);
     });
   }
 
-  protected addPeriodEvents(periodInfo: NgxTimelinePeriodInfo, onLeft: boolean): void {
+  protected addPeriodEvents(periodInfo: NgxTimelinePeriodInfo, onLeft: boolean): boolean {
     this.groups[periodInfo.periodKey].forEach((event, index) => {
       const prevEvent = this.groups[periodInfo.periodKey][index - 1];
 
@@ -152,7 +186,7 @@ export class NgxTimelineComponent implements OnInit, OnChanges {
       }
       this.pushEventOnItems(event, onLeft);
     });
-    // return onLeft;
+    return onLeft;
   }
 
   protected pushEventOnItems(event: NgxTimelineEvent, onLeft: boolean): void {
@@ -166,33 +200,42 @@ export class NgxTimelineComponent implements OnInit, OnChanges {
    * Compare the events inside the same group
    */
   protected compareEvents(prevEvent: NgxTimelineEvent, event: NgxTimelineEvent): boolean {
-    return this.changeSideInGroup === NgxTimelineEventChangeSideInGroup.ALL ||
-      this.compareEventsField(prevEvent, event, ...fieldsToCheckEventChangeSideInGroup[this.changeSideInGroup]);
+    return this.shouldChangeEventsInPeriod() ||
+      this.compareEventsField(prevEvent, event, ...fieldsToCheckEventChangeSide[this.changeSide]);
   }
 
   protected compareEventsField(prevEvent: NgxTimelineEvent, event: NgxTimelineEvent, ...fields: string[]): boolean {
-    return fields.reduce((res, field) => res = res || prevEvent.timestamp[field]() !== event.timestamp[field](), !!false);
+    return fields.reduce((res, field) => res = res || prevEvent.timestamp[field]() !== event.timestamp[field](), false);
   }
 
   protected setPeriods(): void {
     this.periods = Object.keys(this.groups)
       .sort((a, b) => this.reverseOrder ? b.localeCompare(a): a.localeCompare(b))
       .map((periodKey) => {
-      const split = periodKey.split(this.separator);
-      return this.getPeriodInfo(split, periodKey);
-    });
+        const split = periodKey.split(this.separator);
+        return this.getPeriodInfo(split, periodKey);
+      });
   }
 
-  private getPeriodInfo(split: string[], periodKey: string): { periodInfo: NgxTimelinePeriodInfo } {
+  protected getPeriodInfoFromPeriodKey(periodKey: string, firstGroupEvent: NgxTimelineEvent): { periodInfo: NgxTimelinePeriodInfo } {
+      const split = periodKey.split(this.separator);
+      return this.getPeriodInfo(split, periodKey, firstGroupEvent);
+    }
+
+  private getPeriodInfo(split: string[], periodKey: string, firstGroupEvent: NgxTimelineEvent): { periodInfo: NgxTimelinePeriodInfo } {
     return {
       periodInfo: {
         year: Number(split[0]),
         month: Number(split[1]),
         day: Number(split[2]),
         periodKey,
-        firstDate: this.groups[periodKey][0].timestamp as Date,
+        firstDate: firstGroupEvent.timestamp as Date,
       },
     };
+  }
+
+  private shouldChangeEventsInPeriod() {
+    return [NgxTimelineEventChangeSide.ALL_IN_GROUP, NgxTimelineEventChangeSide.ALL].indexOf(this.changeSide) != -1;
   }
 
   protected getPeriodKeyFromEvent(event: NgxTimelineEvent): string {

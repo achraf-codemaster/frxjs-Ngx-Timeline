@@ -1,4 +1,6 @@
-export const supportedLanguageCodes = ['en', 'it', 'fr', 'de', 'es', 'sl', 'tr', 'pt'];
+export const supportedLanguageCodes = ['en', 'it', 'fr', 'de', 'es', 'sl', 'tr', 'pl', 'pt', 'ru'] as const;
+export type SupportedLanguageCode = typeof supportedLanguageCodes[number];
+export const defaultSupportedLanguageCode: SupportedLanguageCode = supportedLanguageCodes[0];
 
 export interface NgxConfigDate {
   code: string;
@@ -9,9 +11,9 @@ export interface NgxConfigDate {
   year: string;
 }
 
-export interface NgxDateObjMap {
-  [key: string]: NgxConfigDate;
-}
+export type NgxDateObjMap = {
+  [key in SupportedLanguageCode]: NgxConfigDate;
+};
 
 export const dateConfigMap: NgxDateObjMap = {
   en: {
@@ -70,8 +72,24 @@ export const dateConfigMap: NgxDateObjMap = {
     year: 'yyyy',
     hoursMinutes: 'HH:mm',
   },
+  pl: {
+    code: 'pl',
+    fullDate: 'dd/MM/yyyy H:mm',
+    dayMonthYear: 'dd MMMM yyyy',
+    monthYear: 'MMMM yyyy',
+    year: 'yyyy',
+    hoursMinutes: 'HH:mm',
+  },
   pt: {
     code: 'pt',
+    fullDate: 'dd/MM/yyyy H:mm',
+    dayMonthYear: 'dd MMMM yyyy',
+    monthYear: 'MMMM yyyy',
+    year: 'yyyy',
+    hoursMinutes: 'HH:mm',
+  },
+  ru: {
+    code: 'ru-RU',
     fullDate: 'dd/MM/yyyy H:mm',
     dayMonthYear: 'dd MMMM yyyy',
     monthYear: 'MMMM yyyy',
@@ -105,6 +123,14 @@ export enum NgxTimelineEventGroup {
   DAY_MONTH_YEAR = 'DAY_MONTH_YEAR'
 }
 
+/**
+ * Enum used to set the group event logic
+ */
+export enum NgxTimelineOrientation {
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
+}
+
 export const fieldsToAddEventGroup = {
   YEAR: ['getFullYear'],
   MONTH_YEAR: ['getFullYear', 'getMonth'],
@@ -120,17 +146,18 @@ export const periodKeyDateFormat = {
 /**
  * Enum used to set the change side event logic
  */
-export enum NgxTimelineEventChangeSideInGroup {
+export enum NgxTimelineEventChangeSide {
   ALL = 'ALL',
-  ON_DIFFERENT_HMS = 'ON_DIFFERENT_HMS',
-  ON_DIFFERENT_DAY = 'ON_DIFFERENT_DAY',
-  ON_DIFFERENT_MONTH = 'ON_DIFFERENT_MONTH',
+  ALL_IN_GROUP = 'ALL_IN_GROUP',
+  ON_DIFFERENT_DAY_IN_GROUP = 'ON_DIFFERENT_DAY_IN_GROUP',
+  ON_DIFFERENT_HMS_IN_GROUP = 'ON_DIFFERENT_HMS_IN_GROUP',
+  ON_DIFFERENT_MONTH_IN_GROUP = 'ON_DIFFERENT_MONTH_IN_GROUP',
   ALL_LEFT = 'ALL_LEFT',
   ALL_RIGHT = 'ALL_RIGHT'
 }
 
 export const fieldsToCheckEventChangeSideInGroup = {
-  ON_DIFFERENT_MONTH: ['getFullYear', 'getMonth'],
-  ON_DIFFERENT_DAY: ['getFullYear', 'getMonth', 'getDate'],
-  ON_DIFFERENT_HMS: ['getFullYear', 'getMonth', 'getDate', 'getHours', 'getMinutes', 'getSeconds'],
+  ON_DIFFERENT_DAY_IN_GROUP: ['getFullYear', 'getMonth', 'getDate'],
+  ON_DIFFERENT_MONTH_IN_GROUP: ['getFullYear', 'getMonth'],
+  ON_DIFFERENT_HMS_IN_GROUP: ['getFullYear', 'getMonth', 'getDate', 'getHours', 'getMinutes', 'getSeconds'],
 };

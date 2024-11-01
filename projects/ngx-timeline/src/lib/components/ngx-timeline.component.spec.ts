@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NgxTimelineComponent} from './ngx-timeline.component';
-import {NgxDateFormat, NgxTimelineEventGroup} from '../models';
+import {NgxDateFormat, NgxTimelineEventChangeSide, NgxTimelineEventGroup, NgxTimelineItemPosition} from '../models';
 
 describe('NgxTimelineComponent', () => {
   let component: NgxTimelineComponent;
@@ -9,9 +9,8 @@ describe('NgxTimelineComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [NgxTimelineComponent],
-    })
-        .compileComponents();
+      imports: [NgxTimelineComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -27,7 +26,15 @@ describe('NgxTimelineComponent', () => {
 
   it('should call the groupEvents when ngOnChanges', () => {
     const spy = spyOn<any>(component, 'groupEvents');
-    component.ngOnChanges({});
+    component.ngOnChanges();
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should call the groupEvents when ngDoCheck and iterable diff find some changes', () => {
+    component.events = [];
+    const spy = spyOn<any>(component, 'groupEvents');
+    component.events.push({});
+    fixture.detectChanges();
     expect(spy).toHaveBeenCalled();
   });
 
@@ -60,8 +67,7 @@ describe('NgxTimelineComponent', () => {
       const spies = [];
       spies.push(spyOn<any>(component, 'clear'));
       spies.push(spyOn<any>(component, 'sortEvents'));
-      spies.push(spyOn<any>(component, 'setGroups'));
-      spies.push(spyOn<any>(component, 'setPeriods'));
+      spies.push(spyOn<any>(component, 'setGroupsAndPeriods'));
       spies.push(spyOn<any>(component, 'setItems'));
       component['groupEvents'](null);
       spies.forEach((spy) => expect(spy).not.toHaveBeenCalled());
@@ -70,10 +76,22 @@ describe('NgxTimelineComponent', () => {
       const spies = [];
       spies.push(spyOn<any>(component, 'clear'));
       spies.push(spyOn<any>(component, 'sortEvents'));
-      spies.push(spyOn<any>(component, 'setGroups'));
-      spies.push(spyOn<any>(component, 'setPeriods'));
+      spies.push(spyOn<any>(component, 'setGroupsAndPeriods'));
       spies.push(spyOn<any>(component, 'setItems'));
       component['groupEvents']([]);
+      spies.forEach((spy) => expect(spy).toHaveBeenCalled());
+    });
+    it('when events with itemPosition', () => {
+      const spies = [];
+      spies.push(spyOn<any>(component, 'clear'));
+      spies.push(spyOn<any>(component, 'sortEvents'));
+      spies.push(spyOn<any>(component, 'setGroupsAndPeriods').and.callThrough());
+      spies.push(spyOn<any>(component, 'setItems').and.callThrough());
+      const event = {timestamp: new Date(2021, 11, 10)};
+      const event2 = {timestamp: new Date(2021, 11, 11), itemPosition: NgxTimelineItemPosition.ON_LEFT};
+      const event3 = {timestamp: new Date(2021, 11, 12), itemPosition: NgxTimelineItemPosition.ON_RIGHT};
+      const events = [event, event2, event3];
+      component['groupEvents'](events);
       spies.forEach((spy) => expect(spy).toHaveBeenCalled());
     });
   });
@@ -101,14 +119,20 @@ describe('NgxTimelineComponent', () => {
     });
   });
 
-  describe('should setGroups', ()=> {
+  describe('should setGroupsAndPeriodsAndPeriods', ()=> {
     it('when events', () => {
+      const date = new Date(2021, 11, 10);
+      const date2 = new Date(2021, 8, 10);
       const event = {timestamp: new Date(2021, 11, 10)};
       const event2 = {timestamp: new Date(2021, 8, 10)};
       const event3 = {timestamp: new Date(2021, 8, 11)};
       const events = [event, event2, event3];
-      component['setGroups'](events);
+      component['setGroupsAndPeriods'](events);
       expect(Object.keys(component.groups).length).toEqual(2);
+      expect(component.periods.length).toEqual(2);
+      expect(component.periods[0]).toEqual({periodInfo: {year: 2021, month: 11, day: NaN, periodKey: '2021/11', firstDate: date}});
+      expect(component.periods[1]).toEqual({periodInfo: {year: 2021, month: 8, day: NaN, periodKey: '2021/8', firstDate: date2}});
+
     });
   });
 
@@ -125,22 +149,21 @@ describe('NgxTimelineComponent', () => {
       component['setItems']();
       expect(component.items.length).toEqual(5);
     });
-  });
-
-  describe('should setPeriods', ()=> {
-    it('when events', () => {
-      const date = new Date(2021, 7, 10);
-      const date2 = new Date(2021, 8, 10);
-      const date3= new Date(2021, 8, 11);
-      const event = {timestamp: date};
-      const event2 = {timestamp: date2};
-      const event3 = {timestamp: date3};
+    it('when events and changeSide is set to NgxTimelineEventChangeSide.ALL', () => {
+      const period = {periodInfo: {periodKey: '2021/7'}};
+      const period2 = {periodInfo: {periodKey: '2021/8'}};
+      component.periods = [period, period2];
+      const event = {timestamp: new Date(2021, 7, 10)};
+      const event2 = {timestamp: new Date(2021, 8, 10)};
+      const event3 = {timestamp: new Date(2021, 8, 11)};
       component.groups['2021/7'] = [event];
       component.groups['2021/8'] = [event2, event3];
-      component['setPeriods']();
-      expect(component.periods.length).toEqual(2);
-      expect(component.periods[0]).toEqual({periodInfo: {year: 2021, month: 7, day: NaN, periodKey: '2021/7', firstDate: date}});
-      expect(component.periods[1]).toEqual({periodInfo: {year: 2021, month: 8, day: NaN, periodKey: '2021/8', firstDate: date2}});
+      component.changeSide = NgxTimelineEventChangeSide.ALL;
+      component['setItems']();
+      expect(component.items.length).toEqual(5);
+      expect(component.items[1].position).toEqual(NgxTimelineItemPosition.ON_LEFT);
+      expect(component.items[3].position).toEqual(NgxTimelineItemPosition.ON_RIGHT);
+      expect(component.items[4].position).toEqual(NgxTimelineItemPosition.ON_LEFT);
     });
   });
 

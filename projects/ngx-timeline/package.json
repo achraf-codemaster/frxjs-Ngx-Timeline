@@ -1,6 +1,6 @@
 {
   "name": "@aghorbel/ngx-timeline",
-  "version": "2.0.5",
+  "version": "18.0.7",
   "keywords": ["angular", "timeline"],
   "author": {
     "name": "Achraf Ghorbel",
@@ -11,11 +11,16 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "^14.2.12",
-    "@angular/compiler": "^14.2.12",
-    "@angular/core": "^14.2.12"
+    "@angular/common": "^18.0.0",
+    "@angular/compiler": "^18.0.0",
+    "@angular/core": "^18.0.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"
+  },
+  "exports": {
+    "./src/lib/styles/global-style.scss": {
+      "sass": "./src/lib/styles/global-style.scss"
+    }
   }
 }

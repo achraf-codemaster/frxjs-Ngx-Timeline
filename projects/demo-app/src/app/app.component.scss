@@ -288,7 +288,7 @@ svg#clouds {
   }
 }
 
-.period-container {
+.period-inner-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -297,8 +297,17 @@ svg#clouds {
   color: lightgrey;
 }
 
+.event-info-description {
+  color: blue;
+  margin: 0.5rem 0;
+}
+
 /* Responsive Styles */
 @media screen and (max-width: 767px) {
+
+  .content {
+    padding: 0 5px;
+  }
 
   .card-container > *:not(.circle-link) ,
   .terminal {
@@ -329,7 +338,6 @@ svg#clouds {
   form {
     display: flex;
     align-items: flex-start;
-    flex: 0 0 20%;
     height: 100vh;
 
     label {
@@ -337,10 +345,15 @@ svg#clouds {
     }
   }
 
-  ngx-timeline {
+  .ngx-timeline-container {
     max-width: 900px;
     display: flex;
     flex: 0 0 80%;
+    overflow-x: auto;
+
+    ngx-timeline {
+      width: 100%;
+    }
   }
 
 }
@@ -354,7 +367,6 @@ svg#clouds {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
   height: 10px;
   width: 10px;
   background: white;
@@ -374,11 +386,8 @@ svg#clouds {
 }
 
 ::ng-deep ngx-timeline.inter {
-  .period-container {
+  .period-inner-container {
     background: blue !important;
-    .period-inner-container {
-      background: blue !important;
-    }
   }
   .line:not(.first-line):not(.last-line) {
     background-color: lightgrey !important;
@@ -410,9 +419,10 @@ svg#clouds {
       }
     }
 
-    ngx-timeline {
-      min-width: 80vw;
+    .ngx-timeline-container {
+      max-width: 100%;
     }
+
 
   }
 }

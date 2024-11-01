@@ -1,19 +1,24 @@
-import { Component } from '@angular/core';
-import { NgxTimelineEvent, NgxTimelineEventGroup, NgxTimelineEventChangeSideInGroup, NgxDateFormat } from 'ngx-timeline';
-import { BehaviorSubject } from 'rxjs';
-import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import {JsonPipe, NgClass} from '@angular/common';
+import {Component} from '@angular/core';
+import {UntypedFormGroup, UntypedFormControl, ReactiveFormsModule} from '@angular/forms';
+
+import {NgxDateFormat, NgxTimelineEvent, NgxTimelineEventChangeSide, NgxTimelineEventGroup, NgxTimelineModule, NgxTimelineOrientation} from 'ngx-timeline';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrl: './app.component.scss',
+  imports: [
+    JsonPipe,
+    NgClass,
+    NgxTimelineModule,
+    ReactiveFormsModule,
+  ],
 })
 export class AppComponent {
   title = 'demo-app';
   events: NgxTimelineEvent[];
-  events$: BehaviorSubject<NgxTimelineEvent[]> = new BehaviorSubject(null);
-  color = 0;
-  backgroundColor = 'red';
   form: UntypedFormGroup;
   ngxDateFormat = NgxDateFormat;
 
@@ -29,7 +34,9 @@ export class AppComponent {
         {name: 'Italian', value: 'it'},
         {name: 'Slovenian', value: 'sl'},
         {name: 'Turkish', value: 'tr'},
-        {name: 'Portuguese', value: 'pt'}
+        {name: 'Polish', value: 'pl'},
+        {name: 'Portuguese', value: 'pt'},
+        {name: 'Russian', value: 'ru'}
       ]
     },
     {
@@ -66,15 +73,24 @@ export class AppComponent {
       ]
     },
     {
-      label: 'Change event side in group',
-      formControlName: 'changeSideInGroup',
+      label: 'Change event side',
+      formControlName: 'changeSide',
       options: [
-        {name: 'On different day', value: NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_DAY},
-        {name: 'All', value: NgxTimelineEventChangeSideInGroup.ALL},
-        {name: 'On different hours, minutes and seconds', value: NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_HMS},
-        {name: 'On different month', value: NgxTimelineEventChangeSideInGroup.ON_DIFFERENT_MONTH},
+        {name: 'All', value: NgxTimelineEventChangeSide.ALL},
+        {name: 'All in group', value: NgxTimelineEventChangeSide.ALL_IN_GROUP},
+        {name: 'On different day in group', value: NgxTimelineEventChangeSide.ON_DIFFERENT_DAY_IN_GROUP},
+        {name: 'On different hours, minutes and seconds in group', value: NgxTimelineEventChangeSide.ON_DIFFERENT_HMS_IN_GROUP},
+        {name: 'On different month in group', value: NgxTimelineEventChangeSide.ON_DIFFERENT_MONTH_IN_GROUP},
         {name: 'All left', value: NgxTimelineEventChangeSideInGroup.ALL_LEFT},
         {name: 'All right', value: NgxTimelineEventChangeSideInGroup.ALL_RIGHT},
+      ]
+    },
+    {
+      label: 'Orientation',
+      formControlName: 'orientation',
+      options: [
+        {name: 'Vertical', value: NgxTimelineOrientation.VERTICAL},
+        {name: 'Horizontal', value: NgxTimelineOrientation.HORIZONTAL}
       ]
     },
     {
@@ -102,6 +118,14 @@ export class AppComponent {
       ]
     },
     {
+      label: 'Event description custom template',
+      formControlName: 'eventDescriptionCustomTemplate',
+      options: [
+        {name: 'No Custom template', value: false},
+        {name: 'Custom Description Event Template', value: true}
+      ]
+    },
+    {
       label: 'Center icon custom template',
       formControlName: 'centerIconCustomTemplate',
       options: [
@@ -124,6 +148,14 @@ export class AppComponent {
         {name: 'No emitter', value: false},
         {name: 'Handle click (open console)', value: true}
       ]
+    },
+    {
+      label: 'Custom Theme',
+      formControlName: 'customTheme',
+      options: [
+        {name: 'No custom theme', value: false},
+        {name: 'Custom theme', value: true}
+      ]
     }
   ];
   constructor() {
@@ -135,25 +167,22 @@ export class AppComponent {
 
   private initEvents(): void {
     const today = new Date();
-    const nextHour = new Date();
-    nextHour.setHours(nextHour.getHours() + 1);
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
-    const tomorrowNextHour = new Date();
-    tomorrowNextHour.setDate(today.getDate() + 1);
-    tomorrowNextHour.setHours(tomorrowNextHour.getHours() + 1);
+    const tomorrowPlusOneHour = new Date();
+    tomorrowPlusOneHour.setDate(today.getDate() + 1);
+    tomorrowPlusOneHour.setHours(today.getHours() + 1);
     const nextMonth = new Date();
     nextMonth.setMonth(today.getMonth() + 1);
     const nextYear = new Date();
     nextYear.setFullYear(today.getFullYear() + 1);
 
     this.events = [
-      { id: 0, description: 'This is the description of the event 0', timestamp: today, title: 'title 0' },
-      { id: 1, description: 'This is the description of the event 1', timestamp: nextHour, title: 'title 1' },
-      { id: 2, description: 'This is the description of the event 2', timestamp: tomorrow, title: 'title 2' },
-      { id: 3, description: 'This is the description of the event 3', timestamp: tomorrowNextHour, title: 'title 3' },
-      { id: 4, description: 'This is the description of the event 4', timestamp: nextMonth, title: 'title 4' },
       { id: 5, description: 'This is the description of the event 5', timestamp: nextYear, title: 'title 5' },
+      { id: 1, description: 'This is the description of the event 1', timestamp: tomorrow, title: 'title 1' },
+      { id: 2, description: 'This is the description of the event 2', timestamp: today, title: 'title 2' },
+      { id: 3, description: 'This is the description of the event 3', timestamp: tomorrow, title: 'title 3' },
+      { id: 4, description: 'This is the description of the event 4', timestamp: nextMonth, title: 'title 4', /*itemPosition: NgxTimelineItemPosition.ON_RIGHT */},
     ];
   }
 
