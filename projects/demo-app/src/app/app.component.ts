@@ -81,8 +81,8 @@ export class AppComponent {
         {name: 'On different day in group', value: NgxTimelineEventChangeSide.ON_DIFFERENT_DAY_IN_GROUP},
         {name: 'On different hours, minutes and seconds in group', value: NgxTimelineEventChangeSide.ON_DIFFERENT_HMS_IN_GROUP},
         {name: 'On different month in group', value: NgxTimelineEventChangeSide.ON_DIFFERENT_MONTH_IN_GROUP},
-        {name: 'All left', value: NgxTimelineEventChangeSideInGroup.ALL_LEFT},
-        {name: 'All right', value: NgxTimelineEventChangeSideInGroup.ALL_RIGHT},
+        {name: 'All left', value: NgxTimelineEventChangeSide.ALL_LEFT},
+        {name: 'All right', value: NgxTimelineEventChangeSide.ALL_RIGHT},
       ]
     },
     {
@@ -179,6 +179,7 @@ export class AppComponent {
 
     this.events = [
       { id: 5, description: 'This is the description of the event 5', timestamp: nextYear, title: 'title 5' },
+      { id: 0, description: 'This is the description of the event 0', timestamp: today, title: 'title 0' },
       { id: 1, description: 'This is the description of the event 1', timestamp: tomorrow, title: 'title 1' },
       { id: 2, description: 'This is the description of the event 2', timestamp: today, title: 'title 2' },
       { id: 3, description: 'This is the description of the event 3', timestamp: tomorrow, title: 'title 3' },

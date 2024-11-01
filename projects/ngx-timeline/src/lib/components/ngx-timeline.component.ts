@@ -88,7 +88,7 @@ export class NgxTimelineComponent implements OnInit, OnChanges, DoCheck {
    * Output click event emitter
    */
   @Output()
-    clickEmitter: BehaviorSubject<NgxTimelineItem> = new BehaviorSubject(null);
+  clickEmitter: BehaviorSubject<NgxTimelineItem> = new BehaviorSubject(null);
 
   groups: { [key: string]: NgxTimelineEvent[] } = {};
   periods: NgxTimelineItem[] = [];
@@ -177,10 +177,10 @@ export class NgxTimelineComponent implements OnInit, OnChanges, DoCheck {
     this.groups[periodInfo.periodKey].forEach((event, index) => {
       const prevEvent = this.groups[periodInfo.periodKey][index - 1];
 
-      if (this.changeSideInGroup ===  NgxTimelineEventChangeSideInGroup.ALL_LEFT ||
-        this.changeSideInGroup ===  NgxTimelineEventChangeSideInGroup.ALL_RIGHT
+      if (this.changeSide ===  NgxTimelineEventChangeSide.ALL_LEFT ||
+        this.changeSide ===  NgxTimelineEventChangeSide.ALL_RIGHT
       ) {
-        onLeft = this.changeSideInGroup === NgxTimelineEventChangeSideInGroup.ALL_LEFT;
+        onLeft = this.changeSide === NgxTimelineEventChangeSide.ALL_LEFT;
       } else if (index > 0 && this.compareEvents(prevEvent, event)) {
         onLeft = !onLeft;
       }
@@ -208,19 +208,10 @@ export class NgxTimelineComponent implements OnInit, OnChanges, DoCheck {
     return fields.reduce((res, field) => res = res || prevEvent.timestamp[field]() !== event.timestamp[field](), false);
   }
 
-  protected setPeriods(): void {
-    this.periods = Object.keys(this.groups)
-      .sort((a, b) => this.reverseOrder ? b.localeCompare(a): a.localeCompare(b))
-      .map((periodKey) => {
-        const split = periodKey.split(this.separator);
-        return this.getPeriodInfo(split, periodKey);
-      });
-  }
-
   protected getPeriodInfoFromPeriodKey(periodKey: string, firstGroupEvent: NgxTimelineEvent): { periodInfo: NgxTimelinePeriodInfo } {
-      const split = periodKey.split(this.separator);
+        const split = periodKey.split(this.separator);
       return this.getPeriodInfo(split, periodKey, firstGroupEvent);
-    }
+  }
 
   private getPeriodInfo(split: string[], periodKey: string, firstGroupEvent: NgxTimelineEvent): { periodInfo: NgxTimelinePeriodInfo } {
     return {
