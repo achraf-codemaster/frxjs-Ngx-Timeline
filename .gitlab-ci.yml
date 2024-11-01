@@ -88,7 +88,7 @@ deploy_dev:
     - git pull origin $CI_COMMIT_REF_NAME
   script:
     - echo $NEXUS_HOSTED_QA_AUTH > ~/.npmrc
-    - npm run build-package
+    - npm run build:prod
     - cd dist/ngx-timeline
     - npm publish --tag next --registry $NEXUS_HOSTED_QA
   when: on_success
@@ -106,7 +106,7 @@ deploy_prod:
     - git pull origin main
   script:
     - echo $NEXUS_HOSTED_PROD_AUTH > ~/.npmrc
-    - npm run build-package
+    - npm run build:prod
     - cd dist/ngx-timeline
     - npm publish --registry $NEXUS_HOSTED_PROD
   when: on_success
